@@ -109,6 +109,7 @@ in
       pkg-config
       procps
       psmisc
+      python3Packages.supervisor
       reptyr
       ripgrep
       rsync
