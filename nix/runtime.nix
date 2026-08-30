@@ -39,17 +39,11 @@ let
 
   sudoers = pkgs.writeText "sudoers" ''
     Defaults secure_path="/nix/var/nix/profiles/runtime/bin:/usr/local/bin:/root/.nix-profile/bin:/usr/bin:/bin"
-    pi ALL=(ALL:ALL) NOPASSWD: ALL
     root ALL=(ALL:ALL) ALL
   '';
 
   setup = pkgs.writeShellScriptBin "agent-infra-container-setup" ''
     set -eu
-
-    { printf 'pi:x:0:0:PI container user:/home/pi:/nix/var/nix/profiles/runtime/bin/bash\n'; cat /etc/passwd; } > /tmp/passwd
-    mv /tmp/passwd /etc/passwd
-    { printf 'pi:x:0:\n'; cat /etc/group; } > /tmp/group
-    mv /tmp/group /etc/group
 
     install -Dm644 ${profile} /etc/profile
     install -Dm644 ${bashrc} /etc/bashrc
@@ -66,7 +60,7 @@ let
     ln -s usr/bin /bin
     ln -s usr/sbin /sbin
 
-    mkdir -p -m 700 /home/pi
+    mkdir -p -m 700 /root
   '';
 in
 {
@@ -111,7 +105,6 @@ in
       novnc
       openssl
       patch
-      pi-coding-agent
       pixi
       pkg-config
       procps

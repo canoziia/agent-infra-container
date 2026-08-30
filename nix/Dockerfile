@@ -2,9 +2,9 @@ FROM ghcr.io/nixos/nix:latest
 
 ENV NIX_CONFIG="experimental-features = nix-command flakes" \
     PATH="/nix/var/nix/profiles/runtime/bin:/usr/local/bin:/root/.nix-profile/bin:/usr/bin:/bin" \
-    HOME=/home/pi \
-    USER=pi \
-    LOGNAME=pi \
+    HOME=/root \
+    USER=root \
+    LOGNAME=root \
     DISPLAY=:0 \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
@@ -17,5 +17,5 @@ RUN cd /usr/share/agent-infra-container/nix \
  && nix-store --gc \
  && rm -rf /root/.cache/nix /root/.local/state/nix
 
-WORKDIR /home/pi
+WORKDIR /root
 CMD ["/nix/var/nix/profiles/runtime/bin/bash"]
