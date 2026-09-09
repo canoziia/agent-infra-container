@@ -9,6 +9,25 @@ let
 
   cuaDriver = pkgs.callPackage ./cua-driver.nix { };
 
+  fontPackages = with pkgs; [
+    dejavu_fonts
+    liberation_ttf
+    noto-fonts
+    noto-fonts-cjk-sans
+    noto-fonts-color-emoji
+  ];
+
+  fontConfig = pkgs.makeFontsConf {
+    fontDirectories = fontPackages;
+    includes = [ "${pkgs.fontconfig.out}/etc/fonts/conf.d" ];
+  };
+
+  fontEnv = pkgs.buildEnv {
+    name = "agent-infra-container-fonts";
+    paths = fontPackages;
+    pathsToLink = [ "/share/fonts" ];
+  };
+
   starshipConfig = (pkgs.formats.toml { }).generate "starship.toml" {
     add_newline = true;
     character = {
@@ -50,6 +69,7 @@ let
     install -Dm644 ${profile} /etc/profile
     install -Dm644 ${bashrc} /etc/bashrc
     install -Dm644 ${loginDefs} /etc/login.defs
+    install -Dm644 ${fontConfig} /etc/fonts/fonts.conf
     install -Dm644 ${starshipConfig} /etc/starship.toml
     install -Dm644 ${pam} /etc/pam.d/su
     install -Dm644 ${pam} /etc/pam.d/sudo
@@ -72,6 +92,8 @@ in
       "/bin"
       # D-Bus uses XDG_DATA_DIRS to discover the AT-SPI bus and registry.
       "/share/dbus-1"
+      # Fontconfig scans this stable profile path rather than per-package store paths.
+      "/share/fonts"
     ];
     ignoreCollisions = true;
     paths = with pkgs; [
@@ -90,6 +112,8 @@ in
       ethtool
       file
       fluxbox
+      fontconfig
+      fontEnv
       gawk
       gcc
       gdu

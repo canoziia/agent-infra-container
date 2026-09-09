@@ -2,8 +2,9 @@
 
 Nix-based **base image** for agent runtime containers.
 
-This repository provides tools and libraries only. It does not start desktop,
-VNC, MCP, or application services. Derived runtime images own process
+This repository provides tools, libraries, and a browser-ready fontconfig setup
+with Latin, CJK, and color-emoji fonts. It does not start desktop, VNC, MCP, or
+application services. Derived runtime images own process
 supervision, network exposure, authentication, and lifecycle policy.
 
 The main consumer is
