@@ -6,10 +6,11 @@ ENV NIX_CONFIG="experimental-features = nix-command flakes" \
     USER=root \
     LOGNAME=root \
     DISPLAY=:0 \
+    XDG_DATA_DIRS=/nix/var/nix/profiles/runtime/share:/usr/local/share:/usr/share \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
 
-COPY flake.nix flake.lock runtime.nix /usr/share/agent-infra-container/nix/
+COPY flake.nix flake.lock runtime.nix cua-driver.nix /usr/share/agent-infra-container/nix/
 RUN cd /usr/share/agent-infra-container/nix \
  && HOME=/root nix profile add .#runtimeEnv --profile /nix/var/nix/profiles/runtime \
  && setup="$(nix build .#setup --no-link --print-out-paths)" \

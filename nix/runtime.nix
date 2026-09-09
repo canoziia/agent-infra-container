@@ -7,6 +7,8 @@
 let
   nixIndex = inputs.nix-index-database.packages.${system}.nix-index-with-db;
 
+  cuaDriver = pkgs.callPackage ./cua-driver.nix { };
+
   starshipConfig = (pkgs.formats.toml { }).generate "starship.toml" {
     add_newline = true;
     character = {
@@ -66,15 +68,22 @@ in
 {
   runtimeEnv = pkgs.buildEnv {
     name = "agent-infra-container-runtime";
-    pathsToLink = [ "/bin" ];
+    pathsToLink = [
+      "/bin"
+      # D-Bus uses XDG_DATA_DIRS to discover the AT-SPI bus and registry.
+      "/share/dbus-1"
+    ];
     ignoreCollisions = true;
     paths = with pkgs; [
+      at-spi2-core
       bashInteractive
       chromium
       cloudflared
       cmake
+      cuaDriver
       coreutils
       curl
+      dbus
       diffutils
       direnv
       dnsutils
@@ -130,5 +139,5 @@ in
     ];
   };
 
-  inherit setup;
+  inherit setup cuaDriver;
 }

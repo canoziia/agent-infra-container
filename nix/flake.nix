@@ -30,7 +30,7 @@
           };
         in
         {
-          inherit (container) runtimeEnv setup;
+          inherit (container) runtimeEnv setup cuaDriver;
         }
       );
     };
