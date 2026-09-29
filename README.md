@@ -11,6 +11,36 @@ The main consumer is
 [`darknightlab/pi-web-container`](https://github.com/darknightlab/pi-web-container),
 which starts Xvfb/Fluxbox and its application services with Supervisor.
 
+## Prebuilt Linux binary support
+
+The image includes [`nix-ld`](https://github.com/nix-community/nix-ld) to run
+unpatched, dynamically linked Linux binaries downloaded by third-party tools.
+It installs nix-ld at the architecture's standard ELF interpreter path and sets
+`NIX_LD` and `NIX_LD_LIBRARY_PATH` in the Docker environment. Compatibility
+libraries follow the default library set from the NixOS nix-ld module and are
+kept in the runtime profile so image garbage collection preserves them.
+
+This supports native-architecture glibc binaries, not every Linux binary or
+cross-architecture execution. Additional application-specific libraries may
+still be needed. Nix-packaged interpreters such as Python and Node use their
+own store linker, so nix-ld does not automatically fix their native extension
+library lookup. Avoid setting `LD_LIBRARY_PATH` globally, as it can interfere
+with Nix-packaged programs.
+
+## Interactive shells
+
+The image sets `SHELL` to its runtime Bash and initializes Starship from
+`/etc/bashrc`, which Nixpkgs Bash reads for interactive non-login shells.
+Login shells initialize it through `/etc/profile`. Pi Web uses `SHELL` to
+launch a login shell, and Pixi's interactive Bash subshells load `/etc/bashrc`.
+Noninteractive commands do not initialize prompt hooks. No user `.bashrc`
+is required, and persistent home directories are not overwritten.
+
+Derived images inherit these shell defaults and the `NIX_LD` variables. After
+changing this base image, rebuild derived images with `--pull` after publishing
+the updated base, then recreate their containers; restarting an existing
+container does not install the changes.
+
 ## Included Cua support
 
 The runtime environment includes

@@ -9,6 +9,36 @@ let
 
   cuaDriver = pkgs.callPackage ./cua-driver.nix { };
 
+  # Match the default libraries in nixpkgs' NixOS nix-ld module.
+  nixLdLibraries = pkgs.buildEnv {
+    name = "agent-infra-container-nix-ld-libraries";
+    pathsToLink = [ "/lib" ];
+    extraPrefix = "/share/nix-ld";
+    ignoreCollisions = true;
+    paths = map pkgs.lib.getLib (
+      with pkgs;
+      [
+        zlib
+        zstd
+        stdenv.cc.cc
+        curl
+        openssl
+        attr
+        libssh
+        bzip2
+        libxml2
+        acl
+        libsodium
+        util-linux
+        xz
+        systemd
+      ]
+    );
+    postBuild = ''
+      ln -s ${pkgs.stdenv.cc.bintools.dynamicLinker} $out/share/nix-ld/lib/ld.so
+    '';
+  };
+
   fontPackages = with pkgs; [
     dejavu_fonts
     liberation_ttf
@@ -82,6 +112,10 @@ let
     ln -s usr/bin /bin
     ln -s usr/sbin /sbin
 
+    ldpath="$(< ${pkgs.nix-ld}/nix-support/ldpath)"
+    mkdir -p "$(dirname "$ldpath")"
+    ln -s ${pkgs.nix-ld}/libexec/nix-ld "$ldpath"
+
     mkdir -p -m 700 /root
   '';
 in
@@ -94,6 +128,8 @@ in
       "/share/dbus-1"
       # Fontconfig scans this stable profile path rather than per-package store paths.
       "/share/fonts"
+      # Keep the linker and compatibility libraries rooted through the runtime profile.
+      "/share/nix-ld"
     ];
     ignoreCollisions = true;
     paths = with pkgs; [
@@ -119,6 +155,7 @@ in
       gdu
       gh
       git
+      glibc.bin
       gnumake
       gnupg
       gnused
@@ -126,20 +163,26 @@ in
       inetutils
       inputs.nix-index-database.packages.${system}.nix-index-with-db
       iperf3
+      ipmitool
       iproute2
       jq
       lbzip2
+      lean4
       lsof
       net-tools
       nexttrace
       nixd
       nixfmt
+      nix-ld
+      nixLdLibraries
       nodejs_latest
       novnc
       openssl
       patch
+      perl
       pixi
       pkg-config
+      poppler-utils
       procps
       psmisc
       python3Packages.supervisor
@@ -153,6 +196,7 @@ in
       texliveFull
       tmux
       unzip
+      util-linux
       vim
       wget
       which
@@ -160,6 +204,7 @@ in
       xvfb
       xvfb-run
       yq-go
+      zip
     ];
   };
 

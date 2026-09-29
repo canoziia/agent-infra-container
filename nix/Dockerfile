@@ -5,7 +5,10 @@ ENV NIX_CONFIG="experimental-features = nix-command flakes" \
     HOME=/root \
     USER=root \
     LOGNAME=root \
+    SHELL=/nix/var/nix/profiles/runtime/bin/bash \
     DISPLAY=:0 \
+    NIX_LD=/nix/var/nix/profiles/runtime/share/nix-ld/lib/ld.so \
+    NIX_LD_LIBRARY_PATH=/nix/var/nix/profiles/runtime/share/nix-ld/lib \
     XDG_DATA_DIRS=/nix/var/nix/profiles/runtime/share:/usr/local/share:/usr/share \
     LANG=C.UTF-8 \
     LC_ALL=C.UTF-8
